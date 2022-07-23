@@ -18,6 +18,7 @@ var (
 	render   *sdl.Renderer
 	running  bool = true
 	mousePos sdl.Point
+	textures map[string]*sdl.Texture = make(map[string]*sdl.Texture)
 )
 
 func main() {
@@ -48,20 +49,23 @@ func main() {
 	render.RenderSetVSync(true)
 	defer render.Destroy()
 
+	// load assets
+	LoadTextures("./images", textures)
+	defer UnloadTextures(textures)
+
 	// setup is done
 	fmt.Println("starting game")
 
 	var lastFrameTime uint64 = 0
 
 	for running {
+		handleInput()
+		update()
+		drawGame()
 
 		if frameTime := sdl.GetTicks64(); frameTime-lastFrameTime < TICK {
 			sdl.Delay(uint32(TICK - (frameTime - lastFrameTime)))
 		}
-
-		handleInput()
-		update()
-		drawGame()
 
 		lastFrameTime = sdl.GetTicks64()
 	}
